@@ -8,7 +8,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center">
         <div className="text-center sm:text-left mb-4 sm:mb-0">
           <h1 className="text-xl sm:text-2xl font-bold font-headline">IGREJA VERBO DA VIDA VOLTA REDONDA</h1>
-          <p className="text-sm sm:text-md font-headline">Álbum de Membros</p>
+          <p className="text-sm sm:text-md font-headline">CADASTRO</p>
         </div>
         <nav className="flex gap-2 sm:gap-4">
           <Button variant="ghost" asChild className="text-primary-foreground hover:bg-primary/80">
