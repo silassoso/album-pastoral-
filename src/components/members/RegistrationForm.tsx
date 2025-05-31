@@ -236,13 +236,6 @@ export default function RegistrationForm() {
                 {errors.ministriesServed && <p className="text-sm text-destructive">{errors.ministriesServed.message}</p>}
               </div>
             )}
-             <div className="space-y-1">
-                <Label htmlFor="dataAiHint">Qual ministério serve?</Label>
-                <Input id="dataAiHint" {...register('dataAiHint')} placeholder="" />
-                <p className="text-xs text-muted-foreground">Palavras-chave para ajudar a IA a encontrar uma imagem, se necessário (ex: 'homem sorrindo', 'mulher retrato'). Máximo 2 palavras.</p>
-                {errors.dataAiHint && <p className="text-sm text-destructive">{errors.dataAiHint.message}</p>}
-            </div>
-
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isSubmitting}>
