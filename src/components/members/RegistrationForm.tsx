@@ -231,7 +231,7 @@ export default function RegistrationForm() {
 
             {servesInMinistryValue === 'yes' && (
               <div className="space-y-1">
-                <Label htmlFor="ministriesServed">Em quais ministérios serve?</Label>
+                <Label htmlFor="ministriesServed">Qual ministerio voce serve?</Label>
                 <Textarea id="ministriesServed" {...register('ministriesServed')} placeholder="Ex: Louvor, Infantil, Diaconia" />
                 {errors.ministriesServed && <p className="text-sm text-destructive">{errors.ministriesServed.message}</p>}
               </div>
@@ -254,9 +254,7 @@ export default function RegistrationForm() {
     </Card>
   );
 }
-
     
-
     
-
+    
     
