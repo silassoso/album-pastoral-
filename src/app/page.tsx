@@ -28,9 +28,11 @@ export default function AlbumPage() {
     setSelectedMember(null);
   };
 
-  const filteredMembers = members.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMembers = members
+    .filter(member =>
+      member.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <div className="space-y-8">
@@ -59,9 +61,9 @@ export default function AlbumPage() {
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
-            <Card key={index} className="overflow-hidden rounded-xl">
-              <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
-                <Skeleton className="w-32 h-32 rounded-full mb-4" /> 
+            <Card key={index} className="overflow-hidden rounded-xl bg-card">
+              <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
+                <Skeleton className="w-32 h-32 rounded-full" /> 
                 <div className="space-y-2 w-full flex flex-col items-center">
                   <Skeleton className="h-6 w-3/4" /> 
                   <Skeleton className="h-4 w-1/2" />
