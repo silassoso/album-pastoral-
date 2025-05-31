@@ -18,14 +18,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 
 const memberSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres." }),
-  age: z.coerce.number().min(1, { message: "Idade deve ser maior que zero." }).optional(),
+  age: z.coerce.number().min(0, { message: "Idade não pode ser negativa." }).optional(),
   birthDate: z.string({ required_error: "Data de nascimento é obrigatória." }).regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida. Use o formato AAAA-MM-DD ou o seletor de data." }),
   address: z.string().min(5, { message: "Endereço deve ter pelo menos 5 caracteres." }),
   timeAtChurch: z.string().min(2, { message: "Tempo de igreja é obrigatório." }),
   servesInMinistry: z.enum(['yes', 'no'], { required_error: "Selecione se serve em algum ministério." }),
   ministriesServed: z.string().optional(),
   role: z.string().min(2, { message: "Cargo é obrigatório." }),
-  dataAiHint: z.string().optional(),
 }).refine(data => {
   if (data.servesInMinistry === 'yes') {
     return data.ministriesServed && data.ministriesServed.trim().length >= 2;
@@ -37,6 +36,42 @@ const memberSchema = z.object({
 });
 
 type MemberFormData = z.infer<typeof memberSchema>;
+
+function calculateAge(birthDateString: string): number | undefined {
+  if (!birthDateString || !/^\d{4}-\d{2}-\d{2}$/.test(birthDateString)) {
+    return undefined;
+  }
+
+  const [year, month, day] = birthDateString.split('-').map(Number);
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return undefined;
+  }
+
+  const birthDate = new Date(year, month - 1, day); 
+
+  if (isNaN(birthDate.getTime()) || 
+      birthDate.getFullYear() !== year ||
+      birthDate.getMonth() !== month - 1 ||
+      birthDate.getDate() !== day) {
+    return undefined; 
+  }
+
+  const today = new Date();
+  
+  if (birthDate > today) {
+      return 0; 
+  }
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age < 0 ? 0 : age;
+}
+
 
 export default function RegistrationForm() {
   const { addMember } = useMembers();
@@ -55,12 +90,25 @@ export default function RegistrationForm() {
       servesInMinistry: undefined, 
       ministriesServed: "",
       role: "",
-      dataAiHint: "person portrait",
     }
   });
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset, watch, control } = form;
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset, watch, control, setValue } = form;
 
   const servesInMinistryValue = watch('servesInMinistry');
+  const birthDateValue = watch('birthDate');
+
+  useEffect(() => {
+    if (birthDateValue) {
+      const age = calculateAge(birthDateValue);
+      if (age !== undefined) {
+        setValue('age', age, { shouldValidate: true });
+      } else {
+         setValue('age', undefined, { shouldValidate: true }); 
+      }
+    } else {
+      setValue('age', undefined, { shouldValidate: true });
+    }
+  }, [birthDateValue, setValue]);
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -174,8 +222,8 @@ export default function RegistrationForm() {
             </div>
             
             <div className="space-y-1">
-              <Label htmlFor="age">Idade (Opcional)</Label>
-              <Input id="age" type="number" {...register('age')} placeholder="Ex: 30" />
+              <Label htmlFor="age">Idade</Label>
+              <Input id="age" type="number" {...register('age')} placeholder="Calculada automaticamente" />
               {errors.age && <p className="text-sm text-destructive">{errors.age.message}</p>}
             </div>
 
@@ -247,7 +295,3 @@ export default function RegistrationForm() {
     </Card>
   );
 }
-    
-    
-    
-    
