@@ -52,7 +52,7 @@ export default function RegistrationForm() {
       birthDate: "",
       address: "",
       timeAtChurch: "",
-      servesInMinistry: undefined, // Explicitly undefined for radio group
+      servesInMinistry: undefined, 
       ministriesServed: "",
       role: "",
       dataAiHint: "person portrait",
@@ -93,8 +93,8 @@ export default function RegistrationForm() {
       ...data,
       servesInMinistry: data.servesInMinistry === 'yes',
       ministriesServed: data.servesInMinistry === 'yes' ? data.ministriesServed : undefined,
-      birthDate: data.birthDate, // Ensure birthDate is correctly passed
-      dataAiHint: data.name.split(' ')[0].toLowerCase() + " " + (data.age && data.age > 18 ? "adult" : "person"), // Basic hint
+      birthDate: data.birthDate, 
+      dataAiHint: data.name.split(' ')[0].toLowerCase() + " " + (data.age && data.age > 18 ? "adult" : "person"), 
     };
 
     addMember(
@@ -237,7 +237,7 @@ export default function RegistrationForm() {
               </div>
             )}
              <div className="space-y-1">
-                <Label htmlFor="dataAiHint">QUAL MINISTERIO</Label>
+                <Label htmlFor="dataAiHint">Qual ministério serve?</Label>
                 <Input id="dataAiHint" {...register('dataAiHint')} placeholder="Ex: man smiling, woman portrait" />
                 <p className="text-xs text-muted-foreground">Palavras-chave para ajudar a IA a encontrar uma imagem, se necessário (ex: 'homem sorrindo', 'mulher retrato'). Máximo 2 palavras.</p>
                 {errors.dataAiHint && <p className="text-sm text-destructive">{errors.dataAiHint.message}</p>}
