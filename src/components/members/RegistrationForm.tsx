@@ -238,7 +238,7 @@ export default function RegistrationForm() {
             )}
              <div className="space-y-1">
                 <Label htmlFor="dataAiHint">Qual ministério serve?</Label>
-                <Input id="dataAiHint" {...register('dataAiHint')} placeholder="Ex: man smiling, woman portrait" />
+                <Input id="dataAiHint" {...register('dataAiHint')} placeholder="" />
                 <p className="text-xs text-muted-foreground">Palavras-chave para ajudar a IA a encontrar uma imagem, se necessário (ex: 'homem sorrindo', 'mulher retrato'). Máximo 2 palavras.</p>
                 {errors.dataAiHint && <p className="text-sm text-destructive">{errors.dataAiHint.message}</p>}
             </div>
