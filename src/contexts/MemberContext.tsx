@@ -19,7 +19,13 @@ const initialMembers: Member[] = [
     name: 'João da Silva',
     photoUrl: 'https://placehold.co/150x150.png',
     dataAiHint: 'man portrait',
-    address: 'Rua Exemplo, 123, Vila Velha, VR',
+    address: 'Rua Exemplo, 123, Vila Velha, VR, 27277-123', // Address atualizado
+    cep: '27277-123',
+    logradouro: 'Rua Exemplo',
+    numero: '123',
+    bairro: 'Vila Velha',
+    cidade: 'Volta Redonda',
+    uf: 'RJ',
     timeAtChurch: '5 anos',
     servesInMinistry: true,
     ministriesServed: 'Louvor, Jovens',
@@ -33,7 +39,13 @@ const initialMembers: Member[] = [
     name: 'Maria Oliveira',
     photoUrl: 'https://placehold.co/150x150.png',
     dataAiHint: 'woman portrait',
-    address: 'Avenida Principal, 456, Centro, VR',
+    address: 'Avenida Principal, 456, Centro, VR, 27260-000', // Address atualizado
+    cep: '27260-000',
+    logradouro: 'Avenida Principal',
+    numero: '456',
+    bairro: 'Centro',
+    cidade: 'Volta Redonda',
+    uf: 'RJ',
     timeAtChurch: 'Desde 2018',
     servesInMinistry: true,
     ministriesServed: 'Infantil',
@@ -47,7 +59,13 @@ const initialMembers: Member[] = [
     name: 'Carlos Pereira',
     photoUrl: 'https://placehold.co/150x150.png',
     dataAiHint: 'man smiling',
-    address: 'Travessa Paz, 789, Retiro, VR',
+    address: 'Travessa Paz, 789, Retiro, VR, 27275-010', // Address atualizado
+    cep: '27275-010',
+    logradouro: 'Travessa Paz',
+    numero: '789',
+    bairro: 'Retiro',
+    cidade: 'Volta Redonda',
+    uf: 'RJ',
     timeAtChurch: '10 anos',
     servesInMinistry: true,
     ministriesServed: 'Diaconia',
@@ -61,7 +79,13 @@ const initialMembers: Member[] = [
     name: 'Ana Costa',
     photoUrl: 'https://placehold.co/150x150.png',
     dataAiHint: 'woman smiling',
-    address: 'Rua das Flores, 101, Aterrado, VR',
+    address: 'Rua das Flores, 101, Aterrado, VR, 27290-000', // Address atualizado
+    cep: '27290-000',
+    logradouro: 'Rua das Flores',
+    numero: '101',
+    bairro: 'Aterrado',
+    cidade: 'Volta Redonda',
+    uf: 'RJ',
     timeAtChurch: '2 anos',
     servesInMinistry: false,
     role: 'Membro',
@@ -78,8 +102,6 @@ export const MemberProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Simula o carregamento de dados, poderia ser uma chamada de API
-    // Em um app real, você pode carregar do localStorage ou Firebase aqui
     setMembers(initialMembers);
     setIsLoading(false);
   }, []);
@@ -93,6 +115,16 @@ export const MemberProvider = ({ children }: { children: ReactNode }) => {
       photoUrl = URL.createObjectURL(photoFile);
       dataAiHint = 'newly added person';
     }
+    
+    const fullAddress = [
+      memberData.logradouro,
+      memberData.numero,
+      memberData.complemento,
+      memberData.bairro,
+      memberData.cidade,
+      memberData.uf,
+      memberData.cep,
+    ].filter(Boolean).join(', ');
 
     const newMember: Member = {
       ...memberData,
@@ -100,6 +132,7 @@ export const MemberProvider = ({ children }: { children: ReactNode }) => {
       photoUrl: photoUrl,
       dataAiHint: dataAiHint, 
       photoFile: photoFile,
+      address: memberData.logradouro ? fullAddress : memberData.address, // Usa o endereço construído se logradouro existir
     };
     setMembers(prevMembers => [...prevMembers, newMember]);
   };

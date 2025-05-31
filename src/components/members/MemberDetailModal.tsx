@@ -24,7 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
-import { X, Trash2 } from 'lucide-react';
+import { X, Trash2, MapPin, CalendarDays, Church, ShieldCheck, UserCheck, Briefcase } from 'lucide-react';
 import { useMembers } from '@/hooks/useMembers';
 
 
@@ -43,8 +43,31 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
   const handleDelete = () => {
     deleteMember(member.id);
     setIsDeleteDialogOpen(false);
-    onClose(); // Fecha o modal de detalhes também
+    onClose(); 
   };
+
+  const formatAddress = (m: Member) => {
+    let parts = [];
+    if (m.logradouro) parts.push(m.logradouro);
+    if (m.numero) parts.push(m.numero);
+    if (m.complemento) parts.push(m.complemento);
+    
+    let line1 = parts.join(', ');
+    parts = [];
+    if (m.bairro) parts.push(m.bairro);
+    if (m.cidade) parts.push(m.cidade);
+    if (m.uf) parts.push(m.uf.toUpperCase());
+    let line2 = parts.join(' - ');
+    if (line2 && m.cidade && m.uf) line2 = `${m.bairro} - ${m.cidade}/${m.uf.toUpperCase()}`;
+
+
+    let fullAddress = "";
+    if (line1) fullAddress += line1;
+    if (line2) fullAddress += (fullAddress ? `\n${line2}` : line2);
+    if (m.cep) fullAddress += (fullAddress ? `\nCEP: ${m.cep}` : `CEP: ${m.cep}`);
+    
+    return fullAddress || m.address || "Endereço não informado";
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -57,7 +80,6 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
         </DialogHeader>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-          {/* Image Column */}
           <div className="flex justify-center md:justify-start">
             <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-full overflow-hidden shadow-lg border-2 border-primary">
               <Image
@@ -71,22 +93,20 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
             </div>
           </div>
           
-          {/* Text Details Column */}
           <div className="space-y-3 text-sm text-center md:text-left">
-            <p><strong className="font-semibold text-card-foreground">Endereço:</strong> {member.address}</p>
-            <p><strong className="font-semibold text-card-foreground">Tempo de Igreja:</strong> {member.timeAtChurch}</p>
-            <p>
-              <strong className="font-semibold text-card-foreground">Batizado(a):</strong> {member.isBaptized ? 'Sim' : 'Não'}
+            <p className="flex items-start gap-2">
+              <MapPin className="h-4 w-4 mt-0.5 text-accent shrink-0"/> 
+              <span><strong className="font-semibold text-card-foreground">Endereço:</strong><br/>{formatAddress(member).split('\n').map((line, i) => <React.Fragment key={i}>{line}<br/></React.Fragment>)}</span>
             </p>
-            <p>
-              <strong className="font-semibold text-card-foreground">Serve em Ministério:</strong> {member.servesInMinistry ? 'Sim' : 'Não'}
-            </p>
+            <p className="flex items-center gap-2"><Church className="h-4 w-4 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Tempo de Igreja:</strong> {member.timeAtChurch}</p>
+            <p className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Batizado(a):</strong> {member.isBaptized ? 'Sim' : 'Não'}</p>
+            <p className="flex items-center gap-2"><UserCheck className="h-4 w-4 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Serve em Ministério:</strong> {member.servesInMinistry ? 'Sim' : 'Não'}</p>
             {member.servesInMinistry && member.ministriesServed && (
-              <p><strong className="font-semibold text-card-foreground">Ministérios:</strong> {member.ministriesServed}</p>
+              <p className="flex items-start gap-2"><Briefcase className="h-4 w-4 mt-0.5 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Ministérios:</strong> {member.ministriesServed}</p>
             )}
-            <p><strong className="font-semibold text-card-foreground">Cargo:</strong> {member.role}</p>
-            {member.age !== undefined && member.age !== null && <p><strong className="font-semibold text-card-foreground">Idade:</strong> {member.age} anos</p>}
-            <p><strong className="font-semibold text-card-foreground">Data de Nascimento:</strong> {new Date(member.birthDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
+            <p className="flex items-center gap-2"><Briefcase className="h-4 w-4 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Cargo:</strong> {member.role}</p>
+            {member.age !== undefined && member.age !== null && <p className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Idade:</strong> {member.age} anos</p>}
+            <p className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Data de Nascimento:</strong> {new Date(member.birthDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
           </div>
         </div>
 

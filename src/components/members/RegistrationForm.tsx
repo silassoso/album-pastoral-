@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserCircle2, Camera, Upload } from 'lucide-react';
+import { UserCircle2, Camera, Upload, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -20,7 +20,15 @@ const memberSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres." }),
   age: z.coerce.number().min(0, { message: "Idade não pode ser negativa." }).optional(),
   birthDate: z.string({ required_error: "Data de nascimento é obrigatória." }).regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida. Use o formato AAAA-MM-DD ou o seletor de data." }),
-  address: z.string().min(5, { message: "Endereço deve ter pelo menos 5 caracteres." }),
+  
+  cep: z.string().regex(/^\d{5}-?\d{3}$/, { message: "CEP inválido. Use XXXXX-XXX ou XXXXXXXX." }).optional().or(z.literal("")),
+  logradouro: z.string().optional(),
+  numero: z.string().optional(),
+  complemento: z.string().optional(),
+  bairro: z.string().optional(),
+  cidade: z.string().optional(),
+  uf: z.string().optional(),
+
   timeAtChurch: z.string().min(2, { message: "Tempo de igreja é obrigatório." }),
   servesInMinistry: z.enum(['yes', 'no'], { required_error: "Selecione se serve em algum ministério." }),
   ministriesServed: z.string().optional(),
@@ -34,6 +42,16 @@ const memberSchema = z.object({
 }, {
   message: "Detalhes do ministério são obrigatórios se você serve em algum (mínimo 2 caracteres).",
   path: ['ministriesServed'],
+}).refine(data => {
+  // Se o CEP for informado, os campos básicos de endereço também deveriam ser (simulação)
+  if (data.cep && (!data.logradouro || !data.bairro || !data.cidade || !data.uf)) {
+    // Esta validação pode ser mais sofisticada dependendo da API de CEP
+    // return false; // Desabilitado para permitir o cadastro sem CEP completo por enquanto
+  }
+  return true;
+}, {
+  // message: "Logradouro, bairro, cidade e UF são obrigatórios se o CEP for informado.",
+  // path: ['logradouro'] // Poderia ser um path genérico ou específico
 });
 
 type MemberFormData = z.infer<typeof memberSchema>;
@@ -42,37 +60,17 @@ function calculateAge(birthDateString: string): number | undefined {
   if (!birthDateString || !/^\d{4}-\d{2}-\d{2}$/.test(birthDateString)) {
     return undefined;
   }
-
   const [year, month, day] = birthDateString.split('-').map(Number);
-  if (month < 1 || month > 12 || day < 1 || day > 31) {
-    return undefined;
-  }
-
-  const birthDate = new Date(year, month - 1, day); 
-
-  if (isNaN(birthDate.getTime()) || 
-      birthDate.getFullYear() !== year ||
-      birthDate.getMonth() !== month - 1 ||
-      birthDate.getDate() !== day) {
-    return undefined; 
-  }
-
+  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
+  const birthDate = new Date(year, month - 1, day);
+  if (isNaN(birthDate.getTime()) || birthDate.getFullYear() !== year || birthDate.getMonth() !== month - 1 || birthDate.getDate() !== day) return undefined;
   const today = new Date();
-  
-  if (birthDate > today) {
-      return 0; 
-  }
-
+  if (birthDate > today) return 0;
   let age = today.getFullYear() - birthDate.getFullYear();
   const m = today.getMonth() - birthDate.getMonth();
-  
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
   return age < 0 ? 0 : age;
 }
-
 
 export default function RegistrationForm() {
   const { addMember } = useMembers();
@@ -86,31 +84,92 @@ export default function RegistrationForm() {
     defaultValues: {
       name: "",
       birthDate: "",
-      address: "",
+      cep: "",
+      logradouro: "",
+      numero: "",
+      complemento: "",
+      bairro: "",
+      cidade: "",
+      uf: "",
       timeAtChurch: "",
-      servesInMinistry: undefined, 
+      servesInMinistry: undefined,
       ministriesServed: "",
       role: "",
       isBaptized: undefined,
     }
   });
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset, watch, control, setValue } = form;
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset, watch, control, setValue, trigger } = form;
 
   const servesInMinistryValue = watch('servesInMinistry');
   const birthDateValue = watch('birthDate');
+  const cepValue = watch('cep');
 
   useEffect(() => {
     if (birthDateValue) {
       const age = calculateAge(birthDateValue);
-      if (age !== undefined) {
-        setValue('age', age, { shouldValidate: true });
-      } else {
-         setValue('age', undefined, { shouldValidate: true }); 
-      }
+      setValue('age', age !== undefined ? age : undefined, { shouldValidate: true });
     } else {
       setValue('age', undefined, { shouldValidate: true });
     }
   }, [birthDateValue, setValue]);
+
+  // Simulação de busca de CEP
+  useEffect(() => {
+    const fetchAddress = async (cep: string) => {
+      // Remove caracteres não numéricos do CEP
+      const numericCep = cep.replace(/\D/g, '');
+      if (numericCep.length === 8) {
+        // AQUI VOCÊ FARIA A CHAMADA REAL PARA UMA API DE CEP
+        // Exemplo com API fictícia (substitua pela sua implementação real):
+        // try {
+        //   const response = await fetch(`https://viacep.com.br/ws/${numericCep}/json/`);
+        //   if (!response.ok) throw new Error('CEP não encontrado');
+        //   const data = await response.json();
+        //   if (data.erro) throw new Error('CEP não encontrado');
+        //   setValue('logradouro', data.logradouro || '', { shouldValidate: true });
+        //   setValue('bairro', data.bairro || '', { shouldValidate: true });
+        //   setValue('cidade', data.localidade || '', { shouldValidate: true });
+        //   setValue('uf', data.uf || '', { shouldValidate: true });
+        //   trigger(['logradouro', 'bairro', 'cidade', 'uf']); // Valida os campos preenchidos
+        // } catch (error) {
+        //   console.error("Erro ao buscar CEP:", error);
+        //   toast({ title: "Erro ao buscar CEP", description: (error as Error).message, variant: "destructive" });
+        // }
+
+        // Simulação:
+        console.log(`Buscando endereço para o CEP: ${numericCep}`);
+        toast({
+            title: "Simulação de Busca de CEP",
+            description: `Em um app real, o endereço para ${numericCep} seria buscado aqui.`,
+        });
+        // Exemplo de preenchimento simulado:
+        if (numericCep === "12345678") {
+            setValue('logradouro', "Rua Simulada", { shouldValidate: true });
+            setValue('bairro', "Bairro Fictício", { shouldValidate: true });
+            setValue('cidade', "Cidade Exemplo", { shouldValidate: true });
+            setValue('uf', "EX", { shouldValidate: true });
+        } else {
+            // Limpa os campos se o CEP não for o simulado ou se a busca falhar
+            setValue('logradouro', "", { shouldValidate: true });
+            setValue('bairro', "", { shouldValidate: true });
+            setValue('cidade', "", { shouldValidate: true });
+            setValue('uf', "", { shouldValidate: true });
+        }
+        trigger(['logradouro', 'bairro', 'cidade', 'uf']);
+      } else {
+        // Limpa os campos se o CEP não tiver 8 dígitos
+        setValue('logradouro', "", { shouldValidate: true });
+        setValue('bairro', "", { shouldValidate: true });
+        setValue('cidade', "", { shouldValidate: true });
+        setValue('uf', "", { shouldValidate: true });
+      }
+    };
+
+    if (cepValue) {
+      fetchAddress(cepValue);
+    }
+  }, [cepValue, setValue, toast, trigger]);
+
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -139,13 +198,24 @@ export default function RegistrationForm() {
   };
 
   const onSubmit: SubmitHandler<MemberFormData> = (data) => {
+    const fullAddress = [
+      data.logradouro,
+      data.numero,
+      data.complemento,
+      data.bairro,
+      data.cidade,
+      data.uf,
+      data.cep,
+    ].filter(Boolean).join(', ');
+
     const memberPayload = {
       ...data,
+      address: fullAddress || "Endereço não informado", // Fallback para o campo address
       servesInMinistry: data.servesInMinistry === 'yes',
       ministriesServed: data.servesInMinistry === 'yes' ? data.ministriesServed : undefined,
       isBaptized: data.isBaptized === 'yes',
-      birthDate: data.birthDate, 
-      dataAiHint: data.name.split(' ')[0].toLowerCase() + " " + (data.age && data.age > 18 ? "adult" : "person"), 
+      birthDate: data.birthDate,
+      dataAiHint: data.name.split(' ')[0].toLowerCase() + " " + (data.age && data.age > 18 ? "adult" : "person"),
     };
 
     addMember(
@@ -230,11 +300,59 @@ export default function RegistrationForm() {
               {errors.age && <p className="text-sm text-destructive">{errors.age.message}</p>}
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="address">Endereço</Label>
-              <Textarea id="address" {...register('address')} placeholder="Ex: Rua Exemplo, 123, Bairro, Cidade - UF" />
-              {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
-            </div>
+            <Card className="p-4 bg-card/50">
+              <CardHeader className="p-2 mb-2">
+                 <div className="flex items-center gap-2">
+                    <MapPin className="h-6 w-6 text-primary" />
+                    <CardTitle className="text-xl font-headline text-foreground">Endereço</CardTitle>
+                 </div>
+              </CardHeader>
+              <CardContent className="space-y-4 p-2">
+                <div className="space-y-1">
+                  <Label htmlFor="cep">CEP</Label>
+                  <Input id="cep" {...register('cep')} placeholder="Digite o CEP (somente números)" maxLength={9} />
+                  {errors.cep && <p className="text-sm text-destructive">{errors.cep.message}</p>}
+                  <FormDescription className="text-xs">Ao digitar 8 números, o endereço será buscado (simulação).</FormDescription>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1 md:col-span-2">
+                    <Label htmlFor="logradouro">Logradouro</Label>
+                    <Input id="logradouro" {...register('logradouro')} placeholder="Ex: Rua Exemplo" />
+                    {errors.logradouro && <p className="text-sm text-destructive">{errors.logradouro.message}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="numero">Número</Label>
+                    <Input id="numero" {...register('numero')} placeholder="Ex: 123" />
+                    {errors.numero && <p className="text-sm text-destructive">{errors.numero.message}</p>}
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="complemento">Complemento</Label>
+                  <Input id="complemento" {...register('complemento')} placeholder="Ex: Apto 101, Bloco B" />
+                  {errors.complemento && <p className="text-sm text-destructive">{errors.complemento.message}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                        <Label htmlFor="bairro">Bairro</Label>
+                        <Input id="bairro" {...register('bairro')} placeholder="Ex: Centro" />
+                        {errors.bairro && <p className="text-sm text-destructive">{errors.bairro.message}</p>}
+                    </div>
+                    <div className="space-y-1 md:col-span-1">
+                        <Label htmlFor="cidade">Cidade</Label>
+                        <Input id="cidade" {...register('cidade')} placeholder="Ex: Volta Redonda" />
+                        {errors.cidade && <p className="text-sm text-destructive">{errors.cidade.message}</p>}
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="uf">UF</Label>
+                        <Input id="uf" {...register('uf')} placeholder="Ex: RJ" maxLength={2} />
+                        {errors.uf && <p className="text-sm text-destructive">{errors.uf.message}</p>}
+                    </div>
+                </div>
+              </CardContent>
+            </Card>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
