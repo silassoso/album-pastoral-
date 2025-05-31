@@ -1,5 +1,6 @@
+
 "use client";
-import { useState, type ChangeEvent, useEffect } from 'react';
+import { useState, type ChangeEvent, useEffect, useRef } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,6 +37,7 @@ export default function RegistrationForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, control, formState: { errors, isSubmitting }, setValue, watch, reset } = useForm<MemberFormData>({
     resolver: zodResolver(memberSchema),
@@ -47,16 +49,38 @@ export default function RegistrationForm() {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setPhotoFile(file);
-      setPhotoPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSelectFile = () => {
+    if (photoInputRef.current) {
+      photoInputRef.current.removeAttribute('capture');
+      photoInputRef.current.click();
+    }
+  };
+
+  const handleTakePhoto = () => {
+    if (photoInputRef.current) {
+      photoInputRef.current.setAttribute('capture', 'user');
+      photoInputRef.current.click();
     }
   };
 
   const onSubmit: SubmitHandler<MemberFormData> = (data) => {
-    const memberData = {
-      ...data,
-      birthDate: format(data.birthDate, 'yyyy-MM-dd'), // Ensure birthDate is string
-    };
-    addMember(memberData, photoFile || undefined);
+    // Convert photoPreview (Data URL) to File object if needed, or use photoFile directly
+    // For simplicity, we assume photoFile is what we need to upload/process
+    addMember(
+      { 
+        ...data, 
+        birthDate: format(data.birthDate, 'yyyy-MM-dd') 
+      }, 
+      photoFile || undefined
+    );
     toast({
       title: "Membro Cadastrado!",
       description: `${data.name} foi adicionado(a) ao álbum.`,
@@ -65,6 +89,9 @@ export default function RegistrationForm() {
     reset();
     setPhotoPreview(null);
     setPhotoFile(null);
+    if (photoInputRef.current) {
+      photoInputRef.current.value = ""; // Clear the file input
+    }
   };
 
   return (
@@ -83,23 +110,32 @@ export default function RegistrationForm() {
               ) : (
                 <UserCircle2 className="w-24 h-24 text-muted-foreground" />
               )}
-               <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+               <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer" onClick={handleSelectFile}>
                  <Camera className="w-10 h-10 text-white" />
                </div>
             </div>
             <Input 
               id="photo" 
+              ref={photoInputRef}
               type="file" 
               accept="image/*"
-              capture="user"
               onChange={handlePhotoChange} 
               className="hidden"
             />
-             <Button type="button" variant="outline" onClick={() => document.getElementById('photo')?.click()} className="mt-2">
-              <Upload className="mr-2 h-4 w-4" />
-              {photoPreview ? "Trocar Foto" : "Selecionar Foto"}
-            </Button>
-            <p className="text-xs text-muted-foreground mt-1">Clique no ícone ou botão para tirar/escolher uma foto.</p>
+            <div className="mt-2 flex flex-col sm:flex-row gap-2 justify-center">
+              <Button type="button" variant="outline" onClick={handleSelectFile}>
+                <Upload className="mr-2 h-4 w-4" />
+                Selecionar do Dispositivo
+              </Button>
+              <Button type="button" variant="outline" onClick={handleTakePhoto}>
+                <Camera className="mr-2 h-4 w-4" />
+                Tirar Foto
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {photoPreview ? "Para trocar a foto, " : ""}
+              Clique no ícone da câmera acima ou use uma das opções.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -181,3 +217,4 @@ export default function RegistrationForm() {
     </Card>
   );
 }
+
