@@ -1,3 +1,4 @@
+
 "use client";
 import { useState } from 'react';
 import type { Member } from '@/types';
@@ -6,9 +7,10 @@ import MemberCard from '@/components/members/MemberCard';
 import MemberDetailModal from '@/components/members/MemberDetailModal';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { UserPlus, Search, RotateCw } from 'lucide-react';
+import { UserPlus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card'; // Added actual Card imports
 
 export default function AlbumPage() {
   const { members, isLoading } = useMembers();
@@ -57,10 +59,13 @@ export default function AlbumPage() {
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
-            <Card key={index} className="overflow-hidden">
-              <Skeleton className="aspect-square w-full" />
-              <CardContent className="p-4">
-                <Skeleton className="h-6 w-3/4 mb-2" />
+            <Card key={index} className="overflow-hidden rounded-xl">
+              <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
+                <Skeleton className="w-24 h-24 rounded-full mb-1" /> 
+                <div className="space-y-2 w-full flex flex-col items-center">
+                  <Skeleton className="h-6 w-3/4" /> 
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -84,8 +89,3 @@ export default function AlbumPage() {
     </div>
   );
 }
-
-// Dummy Card and CardContent for Skeleton, replace with actual imports if needed
-const Card = ({className, children}: {className?: string, children: React.ReactNode}) => <div className={`bg-card border rounded-lg ${className}`}>{children}</div>;
-const CardContent = ({className, children}: {className?: string, children: React.ReactNode}) => <div className={`p-4 ${className}`}>{children}</div>;
-
