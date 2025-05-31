@@ -9,13 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { CalendarIcon, UserCircle2, Camera, Upload } from 'lucide-react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { UserCircle2, Camera, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 const memberSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres." }),
   age: z.coerce.number().min(1, { message: "Idade deve ser maior que zero." }).optional(),
-  birthDate: z.date({ required_error: "Data de nascimento é obrigatória." }),
+  birthDate: z.string({ required_error: "Data de nascimento é obrigatória." }).regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida. Use o formato AAAA-MM-DD ou o seletor de data." }),
   address: z.string().min(5, { message: "Endereço deve ter pelo menos 5 caracteres." }),
   timeAtChurch: z.string().min(2, { message: "Tempo de igreja é obrigatório." }),
   ministry: z.string().min(2, { message: "Ministério é obrigatório." }),
@@ -39,11 +34,10 @@ export default function RegistrationForm() {
   const { toast } = useToast();
   const photoInputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, control, formState: { errors, isSubmitting }, setValue, watch, reset } = useForm<MemberFormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<MemberFormData>({
     resolver: zodResolver(memberSchema),
   });
   
-  const birthDateValue = watch('birthDate');
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -72,12 +66,10 @@ export default function RegistrationForm() {
   };
 
   const onSubmit: SubmitHandler<MemberFormData> = (data) => {
-    // Convert photoPreview (Data URL) to File object if needed, or use photoFile directly
-    // For simplicity, we assume photoFile is what we need to upload/process
     addMember(
       { 
         ...data, 
-        birthDate: format(data.birthDate, 'yyyy-MM-dd') 
+        birthDate: data.birthDate 
       }, 
       photoFile || undefined
     );
@@ -147,32 +139,7 @@ export default function RegistrationForm() {
 
             <div className="space-y-1">
               <Label htmlFor="birthDate">Data de Nascimento</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !birthDateValue && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {birthDateValue ? format(birthDateValue, "PPP", { locale: ptBR }) : <span>Escolha uma data</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={birthDateValue}
-                    onSelect={(date) => setValue('birthDate', date as Date, { shouldValidate: true })}
-                    initialFocus
-                    locale={ptBR}
-                    captionLayout="dropdown-buttons"
-                    fromYear={1920}
-                    toYear={new Date().getFullYear()}
-                  />
-                </PopoverContent>
-              </Popover>
+              <Input id="birthDate" type="date" {...register('birthDate')} />
               {errors.birthDate && <p className="text-sm text-destructive">{errors.birthDate.message}</p>}
             </div>
           </div>
@@ -217,4 +184,3 @@ export default function RegistrationForm() {
     </Card>
   );
 }
-
