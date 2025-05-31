@@ -2,10 +2,12 @@
 "use client";
 import type { Member } from '@/types';
 import React, { createContext, useState, ReactNode, useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
 
 interface MemberContextType {
   members: Member[];
   addMember: (member: Omit<Member, 'id' | 'photoUrl'>, photoFile?: File) => void;
+  deleteMember: (memberId: string) => void;
   isLoading: boolean;
 }
 
@@ -69,8 +71,11 @@ const initialMembers: Member[] = [
 export const MemberProvider = ({ children }: { children: ReactNode }) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Simula o carregamento de dados, poderia ser uma chamada de API
+    // Em um app real, você pode carregar do localStorage ou Firebase aqui
     setMembers(initialMembers);
     setIsLoading(false);
   }, []);
@@ -78,14 +83,12 @@ export const MemberProvider = ({ children }: { children: ReactNode }) => {
   const addMember = (memberData: Omit<Member, 'id' | 'photoUrl' | 'dataAiHint'>, photoFile?: File) => {
     const newId = (members.length + 1).toString() + Date.now().toString();
     let photoUrl = 'https://placehold.co/150x150.png';
-    let dataAiHint = 'person placeholder'; // Default hint
+    let dataAiHint = 'person placeholder'; 
+
     if (photoFile) {
       photoUrl = URL.createObjectURL(photoFile);
-      // You could potentially add logic here to generate a more specific hint if needed,
-      // or ensure the form collects it. For now, a generic one for new uploads.
-      dataAiHint = 'newly added person'
+      dataAiHint = 'newly added person';
     }
-
 
     const newMember: Member = {
       ...memberData,
@@ -97,8 +100,17 @@ export const MemberProvider = ({ children }: { children: ReactNode }) => {
     setMembers(prevMembers => [...prevMembers, newMember]);
   };
 
+  const deleteMember = (memberId: string) => {
+    setMembers(prevMembers => prevMembers.filter(member => member.id !== memberId));
+    toast({
+      title: "Membro Removido",
+      description: "O membro foi removido do álbum.",
+      variant: "default",
+    });
+  };
+
   return (
-    <MemberContext.Provider value={{ members, addMember, isLoading }}>
+    <MemberContext.Provider value={{ members, addMember, deleteMember, isLoading }}>
       {children}
     </MemberContext.Provider>
   );

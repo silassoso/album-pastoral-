@@ -1,6 +1,8 @@
 
+"use client";
 import type { Member } from '@/types';
 import Image from 'next/image';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,9 +10,23 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
+  DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
+import { useMembers } from '@/hooks/useMembers';
+
 
 interface MemberDetailModalProps {
   member: Member | null;
@@ -19,7 +35,16 @@ interface MemberDetailModalProps {
 }
 
 export default function MemberDetailModal({ member, isOpen, onClose }: MemberDetailModalProps) {
+  const { deleteMember } = useMembers();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
   if (!member) return null;
+
+  const handleDelete = () => {
+    deleteMember(member.id);
+    setIsDeleteDialogOpen(false);
+    onClose(); // Fecha o modal de detalhes também
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -58,12 +83,45 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
           </div>
         </div>
 
+        <DialogFooter className="mt-6 sm:justify-between">
+           <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Deletar Membro
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Essa ação não pode ser desfeita. Isso removerá permanentemente os dados do membro do álbum.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>
+                  Deletar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <DialogClose asChild>
+            <Button 
+              variant="outline"
+              aria-label="Fechar modal"
+            >
+              Fechar
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+
         <DialogClose asChild>
           <Button 
             variant="ghost" 
             size="icon" 
             className="absolute top-4 right-4 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
-            aria-label="Fechar modal"
+            aria-label="Fechar modal de detalhes"
           >
             <X className="h-5 w-5" />
           </Button>
