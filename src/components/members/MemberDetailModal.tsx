@@ -49,26 +49,30 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px] p-6 bg-card text-card-foreground rounded-lg shadow-xl">
-        <DialogHeader className="mb-4">
+        <DialogHeader className="mb-4 text-center sm:text-left">
           <DialogTitle className="text-2xl font-headline text-primary">{member.name}</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Detalhes do Membro
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-          <div className="relative w-full aspect-square rounded-md overflow-hidden shadow-md">
-            <Image
-              src={member.photoUrl}
-              alt={`Foto de ${member.name}`}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
-              data-ai-hint={member.dataAiHint || "person large photo"}
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          {/* Image Column */}
+          <div className="flex justify-center md:justify-start">
+            <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-full overflow-hidden shadow-lg border-2 border-primary">
+              <Image
+                src={member.photoUrl}
+                alt={`Foto de ${member.name}`}
+                fill
+                sizes="160px"
+                className="object-cover"
+                data-ai-hint={member.dataAiHint || "person profile"}
+              />
+            </div>
           </div>
           
-          <div className="space-y-3 text-sm">
+          {/* Text Details Column */}
+          <div className="space-y-3 text-sm text-center md:text-left">
             <p><strong className="font-semibold text-primary-dark">Endereço:</strong> {member.address}</p>
             <p><strong className="font-semibold text-primary-dark">Tempo de Igreja:</strong> {member.timeAtChurch}</p>
             <p>
@@ -81,15 +85,15 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
               <p><strong className="font-semibold text-primary-dark">Ministérios:</strong> {member.ministriesServed}</p>
             )}
             <p><strong className="font-semibold text-primary-dark">Cargo:</strong> {member.role}</p>
-            {member.age && <p><strong className="font-semibold text-primary-dark">Idade:</strong> {member.age} anos</p>}
+            {member.age !== undefined && member.age !== null && <p><strong className="font-semibold text-primary-dark">Idade:</strong> {member.age} anos</p>}
             <p><strong className="font-semibold text-primary-dark">Data de Nascimento:</strong> {new Date(member.birthDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
           </div>
         </div>
 
-        <DialogFooter className="mt-6 sm:justify-between">
+        <DialogFooter className="mt-6 sm:justify-between flex-col-reverse sm:flex-row gap-2">
            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive">
+              <Button variant="destructive" className="w-full sm:w-auto">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Deletar Membro
               </Button>
@@ -113,6 +117,7 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
             <Button 
               variant="outline"
               aria-label="Fechar modal"
+              className="w-full sm:w-auto"
             >
               Fechar
             </Button>
