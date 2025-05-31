@@ -2,7 +2,7 @@
 "use client";
 import type { Member } from '@/types';
 import Image from 'next/image';
-import { useState } from 'react';
+import React, { useState } from 'react'; // Import React
 import {
   Dialog,
   DialogContent,
@@ -46,29 +46,6 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
     onClose(); 
   };
 
-  const formatAddress = (m: Member) => {
-    let parts = [];
-    if (m.logradouro) parts.push(m.logradouro);
-    if (m.numero) parts.push(m.numero);
-    if (m.complemento) parts.push(m.complemento);
-    
-    let line1 = parts.join(', ');
-    parts = [];
-    if (m.bairro) parts.push(m.bairro);
-    if (m.cidade) parts.push(m.cidade);
-    if (m.uf) parts.push(m.uf.toUpperCase());
-    let line2 = parts.join(' - ');
-    if (line2 && m.cidade && m.uf) line2 = `${m.bairro} - ${m.cidade}/${m.uf.toUpperCase()}`;
-
-
-    let fullAddress = "";
-    if (line1) fullAddress += line1;
-    if (line2) fullAddress += (fullAddress ? `\n${line2}` : line2);
-    if (m.cep) fullAddress += (fullAddress ? `\nCEP: ${m.cep}` : `CEP: ${m.cep}`);
-    
-    return fullAddress || m.address || "Endereço não informado";
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px] p-6 bg-card text-card-foreground rounded-lg shadow-xl">
@@ -96,7 +73,7 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
           <div className="space-y-3 text-sm text-center md:text-left">
             <p className="flex items-start gap-2">
               <MapPin className="h-4 w-4 mt-0.5 text-accent shrink-0"/> 
-              <span><strong className="font-semibold text-card-foreground">Endereço:</strong><br/>{formatAddress(member).split('\n').map((line, i) => <React.Fragment key={i}>{line}<br/></React.Fragment>)}</span>
+              <span><strong className="font-semibold text-card-foreground">Endereço:</strong><br/>{member.address || "Endereço não informado"}</span>
             </p>
             <p className="flex items-center gap-2"><Church className="h-4 w-4 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Tempo de Igreja:</strong> {member.timeAtChurch}</p>
             <p className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-accent shrink-0"/><strong className="font-semibold text-card-foreground">Batizado(a):</strong> {member.isBaptized ? 'Sim' : 'Não'}</p>

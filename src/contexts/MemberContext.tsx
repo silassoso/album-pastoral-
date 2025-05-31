@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface MemberContextType {
   members: Member[];
-  addMember: (member: Omit<Member, 'id' | 'photoUrl'>, photoFile?: File) => void;
+  addMember: (member: Omit<Member, 'id' | 'photoUrl' | 'dataAiHint'>, photoFile?: File) => void;
   deleteMember: (memberId: string) => void;
   isLoading: boolean;
 }
@@ -19,13 +19,7 @@ const initialMembers: Member[] = [
     name: 'João da Silva',
     photoUrl: 'https://placehold.co/150x150.png',
     dataAiHint: 'man portrait',
-    address: 'Rua Exemplo, 123, Vila Velha, VR, 27277-123', // Address atualizado
-    cep: '27277-123',
-    logradouro: 'Rua Exemplo',
-    numero: '123',
-    bairro: 'Vila Velha',
-    cidade: 'Volta Redonda',
-    uf: 'RJ',
+    address: 'Rua Exemplo, 123, Vila Velha, Volta Redonda - RJ, CEP 27277-123',
     timeAtChurch: '5 anos',
     servesInMinistry: true,
     ministriesServed: 'Louvor, Jovens',
@@ -39,13 +33,7 @@ const initialMembers: Member[] = [
     name: 'Maria Oliveira',
     photoUrl: 'https://placehold.co/150x150.png',
     dataAiHint: 'woman portrait',
-    address: 'Avenida Principal, 456, Centro, VR, 27260-000', // Address atualizado
-    cep: '27260-000',
-    logradouro: 'Avenida Principal',
-    numero: '456',
-    bairro: 'Centro',
-    cidade: 'Volta Redonda',
-    uf: 'RJ',
+    address: 'Avenida Principal, 456, Centro, Volta Redonda - RJ, CEP 27260-000',
     timeAtChurch: 'Desde 2018',
     servesInMinistry: true,
     ministriesServed: 'Infantil',
@@ -59,13 +47,7 @@ const initialMembers: Member[] = [
     name: 'Carlos Pereira',
     photoUrl: 'https://placehold.co/150x150.png',
     dataAiHint: 'man smiling',
-    address: 'Travessa Paz, 789, Retiro, VR, 27275-010', // Address atualizado
-    cep: '27275-010',
-    logradouro: 'Travessa Paz',
-    numero: '789',
-    bairro: 'Retiro',
-    cidade: 'Volta Redonda',
-    uf: 'RJ',
+    address: 'Travessa Paz, 789, Retiro, Volta Redonda - RJ, CEP 27275-010',
     timeAtChurch: '10 anos',
     servesInMinistry: true,
     ministriesServed: 'Diaconia',
@@ -79,13 +61,7 @@ const initialMembers: Member[] = [
     name: 'Ana Costa',
     photoUrl: 'https://placehold.co/150x150.png',
     dataAiHint: 'woman smiling',
-    address: 'Rua das Flores, 101, Aterrado, VR, 27290-000', // Address atualizado
-    cep: '27290-000',
-    logradouro: 'Rua das Flores',
-    numero: '101',
-    bairro: 'Aterrado',
-    cidade: 'Volta Redonda',
-    uf: 'RJ',
+    address: 'Rua das Flores, 101, Aterrado, Volta Redonda - RJ, CEP 27290-000',
     timeAtChurch: '2 anos',
     servesInMinistry: false,
     role: 'Membro',
@@ -116,23 +92,13 @@ export const MemberProvider = ({ children }: { children: ReactNode }) => {
       dataAiHint = 'newly added person';
     }
     
-    const fullAddress = [
-      memberData.logradouro,
-      memberData.numero,
-      memberData.complemento,
-      memberData.bairro,
-      memberData.cidade,
-      memberData.uf,
-      memberData.cep,
-    ].filter(Boolean).join(', ');
-
     const newMember: Member = {
       ...memberData,
       id: newId,
       photoUrl: photoUrl,
       dataAiHint: dataAiHint, 
       photoFile: photoFile,
-      address: memberData.logradouro ? fullAddress : memberData.address, // Usa o endereço construído se logradouro existir
+      address: memberData.address, 
     };
     setMembers(prevMembers => [...prevMembers, newMember]);
   };

@@ -4,14 +4,7 @@ export interface Member {
   name: string;
   photoUrl: string;
   dataAiHint?: string;
-  address: string; // Mantido para compatibilidade, será construído a partir dos campos abaixo
-  cep?: string;
-  logradouro?: string;
-  numero?: string;
-  complemento?: string;
-  bairro?: string;
-  cidade?: string;
-  uf?: string;
+  address: string; 
   timeAtChurch: string;
   servesInMinistry: boolean;
   ministriesServed?: string;
