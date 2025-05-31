@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { UserPlus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent } from '@/components/ui/card'; // Added actual Card imports
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function AlbumPage() {
   const { members, isLoading } = useMembers();
@@ -35,7 +35,7 @@ export default function AlbumPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-card rounded-lg shadow">
-        <h2 className="text-2xl sm:text-3xl font-bold font-headline text-primary">Álbum de Membros</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold font-headline text-foreground">Álbum de Membros</h2>
         <div className="flex gap-2 items-center w-full sm:w-auto">
           <div className="relative flex-grow sm:flex-grow-0 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -61,7 +61,7 @@ export default function AlbumPage() {
           {Array.from({ length: 8 }).map((_, index) => (
             <Card key={index} className="overflow-hidden rounded-xl">
               <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
-                <Skeleton className="w-24 h-24 rounded-full mb-1" /> 
+                <Skeleton className="w-32 h-32 rounded-full mb-4" /> 
                 <div className="space-y-2 w-full flex flex-col items-center">
                   <Skeleton className="h-6 w-3/4" /> 
                   <Skeleton className="h-4 w-1/2" />
