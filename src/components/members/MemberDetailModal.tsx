@@ -1,3 +1,4 @@
+
 import type { Member } from '@/types';
 import Image from 'next/image';
 import {
@@ -45,7 +46,12 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
           <div className="space-y-3 text-sm">
             <p><strong className="font-semibold text-primary-dark">Endereço:</strong> {member.address}</p>
             <p><strong className="font-semibold text-primary-dark">Tempo de Igreja:</strong> {member.timeAtChurch}</p>
-            <p><strong className="font-semibold text-primary-dark">Ministério:</strong> {member.ministry}</p>
+            <p>
+              <strong className="font-semibold text-primary-dark">Serve em Ministério:</strong> {member.servesInMinistry ? 'Sim' : 'Não'}
+            </p>
+            {member.servesInMinistry && member.ministriesServed && (
+              <p><strong className="font-semibold text-primary-dark">Ministérios:</strong> {member.ministriesServed}</p>
+            )}
             <p><strong className="font-semibold text-primary-dark">Cargo:</strong> {member.role}</p>
             {member.age && <p><strong className="font-semibold text-primary-dark">Idade:</strong> {member.age} anos</p>}
             <p><strong className="font-semibold text-primary-dark">Data de Nascimento:</strong> {new Date(member.birthDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>

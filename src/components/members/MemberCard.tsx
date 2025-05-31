@@ -30,7 +30,12 @@ export default function MemberCard({ member, onClick }: MemberCardProps) {
         </Avatar>
         <div className="space-y-1">
           <CardTitle className="text-xl font-headline" title={member.name}>{member.name}</CardTitle>
-          {member.ministry && <p className="text-sm text-muted-foreground">{member.ministry}</p>}
+          {member.servesInMinistry && member.ministriesServed && (
+            <p className="text-sm text-muted-foreground">{member.ministriesServed}</p>
+          )}
+           {!member.servesInMinistry && (
+            <p className="text-sm text-muted-foreground italic">Não serve em ministérios</p>
+          )}
         </div>
       </CardContent>
     </Card>

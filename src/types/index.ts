@@ -1,12 +1,15 @@
+
 export interface Member {
   id: string;
   name: string;
   photoUrl: string;
+  dataAiHint?: string;
   address: string;
   timeAtChurch: string;
-  ministry: string;
+  servesInMinistry: boolean; // New field
+  ministriesServed?: string; // Renamed from ministry, made optional
   role: string;
-  age?: number; // Made age optional as it can be derived or directly input
-  birthDate: string; // Store as string, can be Date object if preferred
-  photoFile?: File; // To store the actual file object if uploaded
+  age?: number;
+  birthDate: string;
+  photoFile?: File;
 }

@@ -1,3 +1,4 @@
+
 "use client";
 import type { Member } from '@/types';
 import React, { createContext, useState, ReactNode, useEffect } from 'react';
@@ -18,7 +19,8 @@ const initialMembers: Member[] = [
     dataAiHint: 'man portrait',
     address: 'Rua Exemplo, 123, Vila Velha, VR',
     timeAtChurch: '5 anos',
-    ministry: 'Louvor',
+    servesInMinistry: true,
+    ministriesServed: 'Louvor, Jovens',
     role: 'Líder de Jovens',
     age: 30,
     birthDate: '1994-03-15',
@@ -30,7 +32,8 @@ const initialMembers: Member[] = [
     dataAiHint: 'woman portrait',
     address: 'Avenida Principal, 456, Centro, VR',
     timeAtChurch: 'Desde 2018',
-    ministry: 'Infantil',
+    servesInMinistry: true,
+    ministriesServed: 'Infantil',
     role: 'Professora',
     age: 28,
     birthDate: '1996-07-22',
@@ -42,10 +45,23 @@ const initialMembers: Member[] = [
     dataAiHint: 'man smiling',
     address: 'Travessa Paz, 789, Retiro, VR',
     timeAtChurch: '10 anos',
-    ministry: 'Diaconia',
+    servesInMinistry: true,
+    ministriesServed: 'Diaconia',
     role: 'Diácono',
     age: 45,
     birthDate: '1979-01-10',
+  },
+  {
+    id: '4',
+    name: 'Ana Costa',
+    photoUrl: 'https://placehold.co/150x150.png',
+    dataAiHint: 'woman smiling',
+    address: 'Rua das Flores, 101, Aterrado, VR',
+    timeAtChurch: '2 anos',
+    servesInMinistry: false,
+    role: 'Membro',
+    age: 35,
+    birthDate: '1989-11-05',
   },
 ];
 
@@ -55,23 +71,27 @@ export const MemberProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading from a persistent store or API in the future
-    // For now, just use initial members
     setMembers(initialMembers);
     setIsLoading(false);
   }, []);
 
-  const addMember = (memberData: Omit<Member, 'id' | 'photoUrl'>, photoFile?: File) => {
+  const addMember = (memberData: Omit<Member, 'id' | 'photoUrl' | 'dataAiHint'>, photoFile?: File) => {
     const newId = (members.length + 1).toString() + Date.now().toString();
     let photoUrl = 'https://placehold.co/150x150.png';
+    let dataAiHint = 'person placeholder'; // Default hint
     if (photoFile) {
       photoUrl = URL.createObjectURL(photoFile);
+      // You could potentially add logic here to generate a more specific hint if needed,
+      // or ensure the form collects it. For now, a generic one for new uploads.
+      dataAiHint = 'newly added person'
     }
+
 
     const newMember: Member = {
       ...memberData,
       id: newId,
       photoUrl: photoUrl,
+      dataAiHint: dataAiHint, 
       photoFile: photoFile,
     };
     setMembers(prevMembers => [...prevMembers, newMember]);
