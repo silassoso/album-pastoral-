@@ -73,20 +73,20 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
           
           {/* Text Details Column */}
           <div className="space-y-3 text-sm text-center md:text-left">
-            <p><strong className="font-semibold text-primary">Endereço:</strong> {member.address}</p>
-            <p><strong className="font-semibold text-primary">Tempo de Igreja:</strong> {member.timeAtChurch}</p>
+            <p><strong className="font-semibold text-card-foreground">Endereço:</strong> {member.address}</p>
+            <p><strong className="font-semibold text-card-foreground">Tempo de Igreja:</strong> {member.timeAtChurch}</p>
             <p>
-              <strong className="font-semibold text-primary">Batizado(a):</strong> {member.isBaptized ? 'Sim' : 'Não'}
+              <strong className="font-semibold text-card-foreground">Batizado(a):</strong> {member.isBaptized ? 'Sim' : 'Não'}
             </p>
             <p>
-              <strong className="font-semibold text-primary">Serve em Ministério:</strong> {member.servesInMinistry ? 'Sim' : 'Não'}
+              <strong className="font-semibold text-card-foreground">Serve em Ministério:</strong> {member.servesInMinistry ? 'Sim' : 'Não'}
             </p>
             {member.servesInMinistry && member.ministriesServed && (
-              <p><strong className="font-semibold text-primary">Ministérios:</strong> {member.ministriesServed}</p>
+              <p><strong className="font-semibold text-card-foreground">Ministérios:</strong> {member.ministriesServed}</p>
             )}
-            <p><strong className="font-semibold text-primary">Cargo:</strong> {member.role}</p>
-            {member.age !== undefined && member.age !== null && <p><strong className="font-semibold text-primary">Idade:</strong> {member.age} anos</p>}
-            <p><strong className="font-semibold text-primary">Data de Nascimento:</strong> {new Date(member.birthDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
+            <p><strong className="font-semibold text-card-foreground">Cargo:</strong> {member.role}</p>
+            {member.age !== undefined && member.age !== null && <p><strong className="font-semibold text-card-foreground">Idade:</strong> {member.age} anos</p>}
+            <p><strong className="font-semibold text-card-foreground">Data de Nascimento:</strong> {new Date(member.birthDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
           </div>
         </div>
 
