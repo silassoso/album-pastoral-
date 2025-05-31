@@ -118,7 +118,7 @@ export default function RegistrationForm() {
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
       <CardHeader>
         <CardTitle className="text-2xl font-headline text-foreground">Cadastro de Novo Membro</CardTitle>
-        <CardDescription>Preencha os dados abaixo para adicionar um novo membro ao álbum.</CardDescription>
+        <CardDescription className="text-foreground">Preencha os dados abaixo para adicionar um novo membro ao álbum.</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
