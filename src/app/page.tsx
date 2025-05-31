@@ -1,22 +1,25 @@
 
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Member } from '@/types';
 import { useMembers } from '@/hooks/useMembers';
 import MemberCard from '@/components/members/MemberCard';
 import MemberDetailModal from '@/components/members/MemberDetailModal';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { UserPlus, Search } from 'lucide-react';
+import { UserPlus, Search, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+
+const ITEMS_PER_PAGE = 8;
 
 export default function AlbumPage() {
   const { members, isLoading } = useMembers();
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleMemberClick = (member: Member) => {
     setSelectedMember(member);
@@ -34,6 +37,37 @@ export default function AlbumPage() {
     )
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(filteredMembers.length / ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    if (totalPages === 0) {
+        setCurrentPage(1); 
+        return;
+    }
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    } else if (currentPage < 1 && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedMembers = filteredMembers.slice(startIndex, endIndex);
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1));
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-card rounded-lg shadow">
@@ -41,7 +75,7 @@ export default function AlbumPage() {
         <div className="flex gap-2 items-center w-full sm:w-auto">
           <div className="relative flex-grow sm:flex-grow-0 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input 
+            <Input
               type="text"
               placeholder="Buscar membro..."
               className="pl-10"
@@ -60,12 +94,12 @@ export default function AlbumPage() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, index) => (
+          {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
             <Card key={index} className="overflow-hidden rounded-xl bg-card">
               <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                <Skeleton className="w-32 h-32 rounded-full" /> 
+                <Skeleton className="w-32 h-32 rounded-full" />
                 <div className="space-y-2 w-full flex flex-col items-center">
-                  <Skeleton className="h-6 w-3/4" /> 
+                  <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
                 </div>
               </CardContent>
@@ -73,11 +107,36 @@ export default function AlbumPage() {
           ))}
         </div>
       ) : filteredMembers.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredMembers.map((member) => (
-            <MemberCard key={member.id} member={member} onClick={() => handleMemberClick(member)} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {paginatedMembers.map((member) => (
+              <MemberCard key={member.id} member={member} onClick={() => handleMemberClick(member)} />
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 mt-8">
+              <Button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                variant="outline"
+              >
+                <ArrowLeft className="mr-2 h-5 w-5" />
+                Anterior
+              </Button>
+              <span className="text-sm text-foreground">
+                Página {currentPage} de {totalPages}
+              </span>
+              <Button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                variant="outline"
+              >
+                Próxima
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-12">
           <Search className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
