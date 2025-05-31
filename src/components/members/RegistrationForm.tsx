@@ -132,7 +132,7 @@ export default function RegistrationForm() {
                   <UserCircle2 className="w-24 h-24 text-muted-foreground" />
                 )}
                  <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer" onClick={handleSelectFile}>
-                   <Camera className="w-10 h-10 text-white" />
+                   <span className="text-white text-center p-2 text-sm">OPÇÃO DE ALINHAR FOTO</span>
                  </div>
               </div>
               <Input
@@ -155,7 +155,7 @@ export default function RegistrationForm() {
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {photoPreview ? "Para trocar a foto, " : ""}
-                Clique no ícone da câmera acima ou use uma das opções.
+                Clique na área da foto acima ou use uma das opções abaixo.
               </p>
             </div>
 
@@ -254,3 +254,5 @@ export default function RegistrationForm() {
     </Card>
   );
 }
+
+    
