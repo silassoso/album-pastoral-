@@ -12,4 +12,6 @@ export interface Member {
   age?: number;
   birthDate: string;
   photoFile?: File;
+  isBaptized: boolean; // Novo campo para batismo
 }
+

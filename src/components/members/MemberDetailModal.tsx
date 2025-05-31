@@ -72,6 +72,9 @@ export default function MemberDetailModal({ member, isOpen, onClose }: MemberDet
             <p><strong className="font-semibold text-primary-dark">Endereço:</strong> {member.address}</p>
             <p><strong className="font-semibold text-primary-dark">Tempo de Igreja:</strong> {member.timeAtChurch}</p>
             <p>
+              <strong className="font-semibold text-primary-dark">Batizado(a):</strong> {member.isBaptized ? 'Sim' : 'Não'}
+            </p>
+            <p>
               <strong className="font-semibold text-primary-dark">Serve em Ministério:</strong> {member.servesInMinistry ? 'Sim' : 'Não'}
             </p>
             {member.servesInMinistry && member.ministriesServed && (

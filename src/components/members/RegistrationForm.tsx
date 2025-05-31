@@ -25,6 +25,7 @@ const memberSchema = z.object({
   servesInMinistry: z.enum(['yes', 'no'], { required_error: "Selecione se serve em algum ministério." }),
   ministriesServed: z.string().optional(),
   role: z.string().min(2, { message: "Cargo é obrigatório." }),
+  isBaptized: z.enum(['yes', 'no'], { required_error: "Selecione se é batizado." }),
 }).refine(data => {
   if (data.servesInMinistry === 'yes') {
     return data.ministriesServed && data.ministriesServed.trim().length >= 2;
@@ -90,6 +91,7 @@ export default function RegistrationForm() {
       servesInMinistry: undefined, 
       ministriesServed: "",
       role: "",
+      isBaptized: undefined,
     }
   });
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset, watch, control, setValue } = form;
@@ -141,6 +143,7 @@ export default function RegistrationForm() {
       ...data,
       servesInMinistry: data.servesInMinistry === 'yes',
       ministriesServed: data.servesInMinistry === 'yes' ? data.ministriesServed : undefined,
+      isBaptized: data.isBaptized === 'yes',
       birthDate: data.birthDate, 
       dataAiHint: data.name.split(' ')[0].toLowerCase() + " " + (data.age && data.age > 18 ? "adult" : "person"), 
     };
@@ -223,7 +226,7 @@ export default function RegistrationForm() {
             
             <div className="space-y-1">
               <Label htmlFor="age">Idade</Label>
-              <Input id="age" type="number" {...register('age')} placeholder="Calculada automaticamente" />
+              <Input id="age" type="number" {...register('age')} placeholder="Calculada automaticamente" readOnly className="bg-muted/50 cursor-default" />
               {errors.age && <p className="text-sm text-destructive">{errors.age.message}</p>}
             </div>
 
@@ -245,6 +248,37 @@ export default function RegistrationForm() {
                 {errors.role && <p className="text-sm text-destructive">{errors.role.message}</p>}
               </div>
             </div>
+
+            <FormField
+              control={control}
+              name="isBaptized"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Batizado(a)?</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
+                    >
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="yes" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Sim</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="no" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Não</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={control}

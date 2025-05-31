@@ -26,6 +26,7 @@ const initialMembers: Member[] = [
     role: 'Líder de Jovens',
     age: 30,
     birthDate: '1994-03-15',
+    isBaptized: true,
   },
   {
     id: '2',
@@ -39,6 +40,7 @@ const initialMembers: Member[] = [
     role: 'Professora',
     age: 28,
     birthDate: '1996-07-22',
+    isBaptized: true,
   },
   {
     id: '3',
@@ -52,6 +54,7 @@ const initialMembers: Member[] = [
     role: 'Diácono',
     age: 45,
     birthDate: '1979-01-10',
+    isBaptized: false,
   },
   {
     id: '4',
@@ -64,6 +67,7 @@ const initialMembers: Member[] = [
     role: 'Membro',
     age: 35,
     birthDate: '1989-11-05',
+    isBaptized: true,
   },
 ];
 
