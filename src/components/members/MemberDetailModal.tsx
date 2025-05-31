@@ -2,7 +2,7 @@
 "use client";
 import type { Member } from '@/types';
 import Image from 'next/image';
-import React, { useState } from 'react'; // Import React
+import React, { useState } from 'react'; 
 import {
   Dialog,
   DialogContent,

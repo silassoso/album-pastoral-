@@ -42,17 +42,37 @@ function calculateAge(birthDateString: string): number | undefined {
   if (!birthDateString || !/^\d{4}-\d{2}-\d{2}$/.test(birthDateString)) {
     return undefined;
   }
+
   const [year, month, day] = birthDateString.split('-').map(Number);
-  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
-  const birthDate = new Date(year, month - 1, day);
-  if (isNaN(birthDate.getTime()) || birthDate.getFullYear() !== year || birthDate.getMonth() !== month - 1 || birthDate.getDate() !== day) return undefined;
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return undefined;
+  }
+
+  const birthDate = new Date(year, month - 1, day); 
+
+  if (isNaN(birthDate.getTime()) || 
+      birthDate.getFullYear() !== year ||
+      birthDate.getMonth() !== month - 1 ||
+      birthDate.getDate() !== day) {
+    return undefined; 
+  }
+
   const today = new Date();
-  if (birthDate > today) return 0;
+  
+  if (birthDate > today) {
+      return 0; 
+  }
+
   let age = today.getFullYear() - birthDate.getFullYear();
   const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+  
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
   return age < 0 ? 0 : age;
 }
+
 
 export default function RegistrationForm() {
   const { addMember } = useMembers();
@@ -68,7 +88,7 @@ export default function RegistrationForm() {
       birthDate: "",
       address: "",
       timeAtChurch: "",
-      servesInMinistry: undefined,
+      servesInMinistry: undefined, 
       ministriesServed: "",
       role: "",
       isBaptized: undefined,
@@ -82,12 +102,15 @@ export default function RegistrationForm() {
   useEffect(() => {
     if (birthDateValue) {
       const age = calculateAge(birthDateValue);
-      setValue('age', age !== undefined ? age : undefined, { shouldValidate: true });
+      if (age !== undefined) {
+        setValue('age', age, { shouldValidate: true });
+      } else {
+         setValue('age', undefined, { shouldValidate: true }); 
+      }
     } else {
       setValue('age', undefined, { shouldValidate: true });
     }
   }, [birthDateValue, setValue]);
-
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -118,12 +141,11 @@ export default function RegistrationForm() {
   const onSubmit: SubmitHandler<MemberFormData> = (data) => {
     const memberPayload = {
       ...data,
-      address: data.address,
       servesInMinistry: data.servesInMinistry === 'yes',
-      ministriesServed: data.servesInMinistry === 'yes' ? data.ministriesServed : undefined,
       isBaptized: data.isBaptized === 'yes',
-      birthDate: data.birthDate,
-      dataAiHint: data.name.split(' ')[0].toLowerCase() + " " + (data.age && data.age > 18 ? "adult" : "person"),
+      ministriesServed: data.servesInMinistry === 'yes' ? data.ministriesServed : undefined,
+      birthDate: data.birthDate, 
+      dataAiHint: data.name.split(' ')[0].toLowerCase() + " " + (data.age && data.age > 18 ? "adult" : "person"), 
     };
 
     addMember(
@@ -204,10 +226,10 @@ export default function RegistrationForm() {
             
             <div className="space-y-1">
               <Label htmlFor="age">Idade</Label>
-              <Input id="age" type="number" {...register('age')} placeholder="Calculada automaticamente" readOnly className="bg-muted/50 cursor-default" />
+              <Input id="age" type="number" {...register('age')} placeholder="Calculada automaticamente" readOnly className="bg-muted/50 cursor-default"/>
               {errors.age && <p className="text-sm text-destructive">{errors.age.message}</p>}
             </div>
-            
+
             <div className="space-y-1">
               <Label htmlFor="address">Endereço</Label>
               <Textarea id="address" {...register('address')} placeholder="Ex: Rua Exemplo, 123, Bairro, Cidade - UF, CEP XXXXX-XXX" />
